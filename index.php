@@ -62,7 +62,7 @@
 	<?php
 	include('include/topbar.php'); 
 	include('include/menu.php');
-	include('include/slider.php');
+	
 
 	if(isset($_GET['quanly'])){
 		$tam = $_GET['quanly'];

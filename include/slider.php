@@ -1,11 +1,6 @@
 <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
 		<!-- Indicators-->
-		<ol class="carousel-indicators">
-			<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-			<li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-			<li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-			<li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
-		</ol>
+		
 		<div class="carousel-inner">
 			<?php
 			$sql_slider = mysqli_query($con,"SELECT * FROM tbl_slider WHERE slider_active='1' ORDER BY slider_id");
@@ -15,7 +10,6 @@
 			<img src="images/<?php echo $row_slider['slider_image'] ?>"width="100" height="1000" alt="">
 				<div class="container">
 				
-					
 				</div>
 			</div>
 			<?php
