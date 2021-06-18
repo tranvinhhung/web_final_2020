@@ -41,7 +41,8 @@
 			<div class="col-md-12">
 				<h4>Khách hàng</h4>
 				<?php
-				$sql_select_khachhang = mysqli_query($con,"SELECT * FROM tbl_khachhang,tbl_giaodich WHERE tbl_khachhang.khachhang_id=tbl_giaodich.khachhang_id GROUP BY tbl_giaodich.magiaodich ORDER BY tbl_khachhang.khachhang_id DESC"); 
+				$sql_select_khachhang = oci_parse($con,"SELECT * FROM tbl_khachhang,tbl_giaodich WHERE tbl_khachhang.khachhang_id=tbl_giaodich.khachhang_id /* GROUP BY tbl_giaodich.magiaodich */ORDER BY tbl_khachhang.khachhang_id ASC"); 
+				oci_execute($sql_select_khachhang);
 				?> 
 				<table class="table table-bordered ">
 					<tr>
@@ -55,19 +56,20 @@
 					</tr>
 					<?php
 					$i = 0;
-					while($row_khachhang = mysqli_fetch_array($sql_select_khachhang)){ 
+					while($row_khachhang = oci_fetch_array($sql_select_khachhang,OCI_BOTH)){ 
 						$i++;
+						
 					?> 
 					<tr>
 						<td><?php echo $i; ?></td>
 						
-						<td><?php echo $row_khachhang['name']; ?></td>
-						<td><?php echo $row_khachhang['phone']; ?></td>
-						<td><?php echo $row_khachhang['address']; ?></td>
+						<td><?php echo $row_khachhang['NAME']; ?></td>
+						<td><?php echo $row_khachhang['PHONE']; ?></td>
+						<td><?php echo $row_khachhang['ADDRESS']; ?></td>
 						
-						<td><?php echo $row_khachhang['email'] ?></td>
-						<td><?php echo $row_khachhang['ngaythang'] ?></td>
-						<td><a href="?quanly=xemgiaodich&khachhang=<?php echo $row_khachhang['magiaodich'] ?>">Xem giao dịch</a></td>
+						<td><?php echo $row_khachhang['EMAIL'] ?></td>
+						<td><?php echo $row_khachhang['NGAYTHANG'] ?></td>
+						<td><a href="?quanly=xemgiaodich&khachhang=<?php echo $row_khachhang['MAGIAODICH'] ?>">Xem giao dịch</a></td>
 					</tr>
 					 <?php
 					} 
@@ -83,7 +85,8 @@
 				}else{
 					$magiaodich = '';
 				}
-				$sql_select = mysqli_query($con,"SELECT * FROM tbl_giaodich,tbl_khachhang,tbl_sanpham WHERE tbl_giaodich.sanpham_id=tbl_sanpham.sanpham_id AND tbl_khachhang.khachhang_id=tbl_giaodich.khachhang_id AND tbl_giaodich.magiaodich='$magiaodich' ORDER BY tbl_giaodich.giaodich_id DESC"); 
+				$sql_select = oci_parse($con,"SELECT * FROM tbl_giaodich,tbl_khachhang,tbl_sanpham WHERE tbl_giaodich.sanpham_id=tbl_sanpham.sanpham_id AND tbl_khachhang.khachhang_id=tbl_giaodich.khachhang_id AND tbl_giaodich.magiaodich='$magiaodich' ORDER BY tbl_giaodich.giaodich_id DESC"); 
+				oci_execute($sql_select);
 				?> 
 				<table class="table table-bordered ">
 					<tr>
@@ -95,17 +98,17 @@
 					</tr>
 					<?php
 					$i = 0;
-					while($row_donhang = mysqli_fetch_array($sql_select)){ 
+					while($row_donhang = oci_fetch_array($sql_select)){ 
 						$i++;
 					?> 
 					<tr>
 						<td><?php echo $i; ?></td>
 						
-						<td><?php echo $row_donhang['magiaodich']; ?></td>
+						<td><?php echo $row_donhang['MAGIAODICH']; ?></td>
 					
-						<td><?php echo $row_donhang['sanpham_name']; ?></td>
+						<td><?php echo $row_donhang['SANPHAM_NAME']; ?></td>
 						
-						<td><?php echo $row_donhang['ngaythang'] ?></td>
+						<td><?php echo $row_donhang['NGAYTHANG'] ?></td>
 					
 					
 					</tr>

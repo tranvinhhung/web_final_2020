@@ -4,16 +4,19 @@
 <?php
 	if(isset($_POST['themdanhmuc'])){
 		$tendanhmuc = $_POST['danhmuc'];
-		$sql_insert = mysqli_query($con,"INSERT INTO tbl_category(category_name) values ('$tendanhmuc')");
+		$sql_insert = oci_parse($con,"INSERT INTO tbl_category(category_name) values ('$tendanhmuc')");
+		oci_execute($sql_insert);
 	}elseif(isset($_POST['capnhatdanhmuc'])){
 		$id_post = $_POST['id_danhmuc'];
 		$tendanhmuc = $_POST['danhmuc'];
-		$sql_update = mysqli_query($con,"UPDATE tbl_category SET category_name='$tendanhmuc' WHERE category_id='$id_post'");
+		$sql_update = oci_parse($con,"UPDATE tbl_category SET category_name='$tendanhmuc' WHERE category_id='$id_post'");
+		oci_execute($sql_update);
 		header('Location:xulydanhmuc.php');
 	}
 	if(isset($_GET['xoa'])){
 		$id= $_GET['xoa'];
-		$sql_xoa = mysqli_query($con,"DELETE FROM tbl_category WHERE category_id='$id'");
+		$sql_xoa = oci_parse($con,"DELETE FROM tbl_category WHERE category_id='$id'");
+		oci_execute($sql_xoa);
 	}
 ?>
 <!DOCTYPE html>
@@ -54,15 +57,16 @@
 			<?php
 			if(isset($_GET['quanly'])=='capnhat'){
 				$id_capnhat = $_GET['id'];
-				$sql_capnhat = mysqli_query($con,"SELECT * FROM tbl_category WHERE category_id='$id_capnhat'");
-				$row_capnhat = mysqli_fetch_array($sql_capnhat);
+				$sql_capnhat = oci_parse($con,"SELECT * FROM tbl_category WHERE category_id='$id_capnhat'");
+				oci_execute($sql_capnhat);
+				$row_capnhat = oci_fetch_array($sql_capnhat);
 				?>
 				<div class="col-md-4">
 				<h4>Cập nhật danh mục</h4>
 				<label>Tên danh mục</label>
 				<form action="" method="POST">
-					<input type="text" class="form-control" name="danhmuc" value="<?php echo $row_capnhat['category_name'] ?>"><br>
-					<input type="hidden" class="form-control" name="id_danhmuc" value="<?php echo $row_capnhat['category_id'] ?>">
+					<input type="text" class="form-control" name="danhmuc" value="<?php echo $row_capnhat['CATEGORY_NAME'] ?>"><br>
+					<input type="hidden" class="form-control" name="id_danhmuc" value="<?php echo $row_capnhat['CATEGORY_ID'] ?>">
 
 					<input type="submit" name="capnhatdanhmuc" value="Cập nhật danh mục" class="btn btn-default">
 				</form>
@@ -85,7 +89,8 @@
 			<div class="col-md-8">
 				<h4>Liệt kê danh mục</h4>
 				<?php
-				$sql_select = mysqli_query($con,"SELECT * FROM tbl_category ORDER BY category_id DESC"); 
+				$sql_select = oci_parse($con,"SELECT * FROM tbl_category ORDER BY category_id DESC"); 
+				oci_execute($sql_select);
 				?>
 				<table class="table table-bordered ">
 					<tr>
@@ -95,13 +100,13 @@
 					</tr>
 					<?php
 					$i = 0;
-					while($row_category = mysqli_fetch_array($sql_select)){ 
+					while($row_category = oci_fetch_array($sql_select)){ 
 						$i++;
 					?>
 					<tr>
 						<td><?php echo $i; ?></td>
-						<td><?php echo $row_category['category_name'] ?></td>
-						<td><a href="?xoa=<?php echo $row_category['category_id'] ?>">Xóa</a> || <a href="?quanly=capnhat&id=<?php echo $row_category['category_id'] ?>">Cập nhật</a></td>
+						<td><?php echo $row_category['CATEGORY_NAME'] ?></td>
+						<td><a href="?xoa=<?php echo $row_category['CATEGORY_ID'] ?>">Xóa</a> || <a href="?quanly=capnhat&id=<?php echo $row_category['CATEGORY_ID'] ?>">Cập nhật</a></td>
 					</tr>
 					<?php
 					} 

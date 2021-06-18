@@ -6,8 +6,10 @@
 		$huydon = '';
 		$magiaodich = '';
 	}
-	$sql_update_donhang = mysqli_query($con,"UPDATE tbl_donhang SET huydon='$huydon' WHERE mahang='$magiaodich'");
-	$sql_update_giaodich = mysqli_query($con,"UPDATE tbl_giaodich SET huydon='$huydon' WHERE magiaodich='$magiaodich'");
+	$sql_update_donhang = oci_parse($con,"UPDATE tbl_donhang SET huydon='$huydon' WHERE mahang='$magiaodich'");
+	oci_execute($sql_update_donhang);
+	$sql_update_giaodich = oci_parse($con,"UPDATE tbl_giaodich SET huydon='$huydon' WHERE magiaodich='$magiaodich'");
+	oci_execute($sql_update_giaodich);
 ?>
 <!-- top Products -->
 	<div class="ads-grid py-sm-5 py-4">
@@ -35,7 +37,8 @@
 								}else{
 									$id_khachhang = '';
 								}
-								$sql_select = mysqli_query($con,"SELECT * FROM tbl_giaodich WHERE tbl_giaodich.khachhang_id='$id_khachhang' GROUP BY tbl_giaodich.magiaodich"); 
+								$sql_select = oci_parse($con,"SELECT * FROM tbl_giaodich WHERE tbl_giaodich.khachhang_id='$id_khachhang' /*GROUP BY tbl_giaodich.magiaodich*/"); 
+								oci_execute($sql_select);
 								?> 
 								<table class="table table-bordered ">
 									<tr>
@@ -49,19 +52,19 @@
 									</tr>
 									<?php
 									$i = 0;
-									while($row_donhang = mysqli_fetch_array($sql_select)){ 
+									while($row_donhang = oci_fetch_array($sql_select)){ 
 										$i++;
 									?> 
 									<tr>
 										<td><?php echo $i; ?></td>
 										
-										<td><?php echo $row_donhang['magiaodich']; ?></td>
+										<td><?php echo $row_donhang['MAGIAODICH']; ?></td>
 									
 										
-										<td><?php echo $row_donhang['ngaythang'] ?></td>
-										<td><a href="index.php?quanly=xemdonhang&khachhang=<?php echo $_SESSION['khachhang_id'] ?>&magiaodich=<?php echo $row_donhang['magiaodich'] ?>">Xem chi tiết</a></td>
+										<td><?php echo $row_donhang['NGAYTHANG'] ?></td>
+										<td><a href="index.php?quanly=xemdonhang&khachhang=<?php echo $_SESSION['khachhang_id'] ?>&magiaodich=<?php echo $row_donhang['MAGIAODICH'] ?>">Xem chi tiết</a></td>
 										<td><?php 
-										if($row_donhang['tinhtrangdon']==0){
+										if($row_donhang['TINHTRANGDON']==0){
 											echo 'Đã đặt hàng';
 										}else{
 											echo 'Đã xử lý | Đang giao hàng';
@@ -69,11 +72,11 @@
 										?></td>
 										<td>
 											<?php
-											if($row_donhang['huydon']==0){ 
+											if($row_donhang['HUYDON']==0){ 
 											?>
-											<a href="index.php?quanly=xemdonhang&khachhang=<?php echo $_SESSION['khachhang_id'] ?>&magiaodich=<?php echo $row_donhang['magiaodich'] ?>&huydon=1">Yêu cầu hủy</a>
+											<a href="index.php?quanly=xemdonhang&khachhang=<?php echo $_SESSION['khachhang_id'] ?>&magiaodich=<?php echo $row_donhang['MAGIAODICH'] ?>&huydon=1">Yêu cầu hủy</a>
 											<?php
-										}elseif($row_donhang['huydon']==1){											
+										}elseif($row_donhang['HUYDON']==1){											
 											?>
 											<p>Đang chờ hủy...</p>
 											<?php
@@ -98,7 +101,10 @@
 								}else{
 									$magiaodich = '';
 								}
-								$sql_select = mysqli_query($con,"SELECT * FROM tbl_giaodich,tbl_khachhang,tbl_sanpham WHERE tbl_giaodich.sanpham_id=tbl_sanpham.sanpham_id AND tbl_khachhang.khachhang_id=tbl_giaodich.khachhang_id AND tbl_giaodich.magiaodich='$magiaodich' ORDER BY tbl_giaodich.giaodich_id DESC"); 
+								
+								
+							$sql_select = oci_parse($con,"SELECT * FROM tbl_giaodich,tbl_khachhang,tbl_sanpham WHERE tbl_giaodich.sanpham_id=tbl_sanpham.sanpham_id AND tbl_khachhang.khachhang_id=tbl_giaodich.khachhang_id AND tbl_giaodich.magiaodich='$magiaodich' ORDER BY tbl_giaodich.giaodich_id DESC"); 
+								oci_execute($sql_select);
 								?> 
 								<table class="table table-bordered ">
 									<tr>
@@ -111,19 +117,19 @@
 									</tr>
 									<?php
 									$i = 0;
-									while($row_donhang = mysqli_fetch_array($sql_select)){ 
+									while($row_donhang = oci_fetch_array($sql_select)){ 
 										$i++;
 									?> 
 									<tr>
 										<td><?php echo $i; ?></td>
 										
-										<td><?php echo $row_donhang['magiaodich']; ?></td>
+										<td><?php echo $row_donhang['MAGIAODICH']; ?></td>
 									
-										<td><?php echo $row_donhang['sanpham_name']; ?></td>
+										<td><?php echo $row_donhang['SANPHAM_NAME']; ?></td>
 
-										<td><?php echo $row_donhang['soluong']; ?></td>
+										<td><?php echo $row_donhang['SOLUONG']; ?></td>
 										
-										<td><?php echo $row_donhang['ngaythang'] ?></td>
+										<td><?php echo $row_donhang['NGAYTHANG'] ?></td>
 									
 										
 									</tr>

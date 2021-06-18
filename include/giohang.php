@@ -5,18 +5,22 @@
  	$hinhanh = $_POST['hinhanh'];
  	$gia = $_POST['giasanpham'];
  	$soluong = $_POST['soluong'];	
- 	$sql_select_giohang = mysqli_query($con,"SELECT * FROM tbl_giohang WHERE sanpham_id='$sanpham_id'");
- 	$count = mysqli_num_rows($sql_select_giohang);
+ 	$sql_select_giohang = oci_parse($con,"SELECT * FROM tbl_giohang WHERE tensanpham='$tensanpham'");
+	oci_execute($sql_select_giohang);
+ 	$count = oci_num_rows($sql_select_giohang);
  	if($count>0){
- 		$row_sanpham = mysqli_fetch_array($sql_select_giohang);
- 		$soluong = $row_sanpham['soluong'] + 1;
+ 		$row_sanpham = oci_fetch_array($sql_select_giohang);
+		 echo $row_sanpham;
+ 		$soluong = $row_sanpham['SOLUONG'] + 1;
  		$sql_giohang = "UPDATE tbl_giohang SET soluong='$soluong' WHERE sanpham_id='$sanpham_id'";
  	}else{
  		$soluong = $soluong;
- 		$sql_giohang = "INSERT INTO tbl_giohang(tensanpham,sanpham_id,giasanpham,hinhanh,soluong) values ('$tensanpham','$sanpham_id','$gia','$hinhanh','$soluong')";
+ 		$sql_giohang = "INSERT INTO tbl_giohang(giohang_id,tensanpham,sanpham_id,giasanpham,hinhanh,soluong) values (sequengiohang.nextval,'$tensanpham','$sanpham_id','$gia','$hinhanh','$soluong')";
 
  	}
- 	$insert_row = mysqli_query($con,$sql_giohang);
+	//  ECHO $sql_giohang;
+ 	$insert_row = oci_parse($con,$sql_giohang);
+	 oci_execute($insert_row);
  	// if($insert_row==0){
  	// 	header('Location:index.php?quanly=chitietsp&id='.$sanpham_id);	
  	// }
@@ -27,15 +31,18 @@
  		$sanpham_id = $_POST['product_id'][$i];
  		$soluong = $_POST['soluong'][$i];
  		if($soluong<=0){
- 			$sql_delete = mysqli_query($con,"DELETE FROM tbl_giohang WHERE sanpham_id='$sanpham_id'");
+ 			$sql_delete = oci_parse($con,"DELETE FROM tbl_giohang WHERE sanpham_id='$sanpham_id'");
+			 oci_execute($sql_delete);
  		}else{
- 			$sql_update = mysqli_query($con,"UPDATE tbl_giohang SET soluong='$soluong' WHERE sanpham_id='$sanpham_id'");
+ 			$sql_update = oci_parse($con,"UPDATE tbl_giohang SET soluong='$soluong' WHERE sanpham_id='$sanpham_id'");
+			 oci_execute($sql_update);
  		}
  	}
 
  }elseif(isset($_GET['xoa'])){
  	$id = $_GET['xoa'];
- 	$sql_delete = mysqli_query($con,"DELETE FROM tbl_giohang WHERE giohang_id='$id'");
+ 	$sql_delete = oci_parse($con,"DELETE FROM tbl_giohang WHERE giohang_id='$id'");
+	 oci_execute($sql_delete);
 
  }elseif(isset($_GET['dangxuat'])){
  	$id = $_GET['dangxuat'];
@@ -53,20 +60,36 @@
  	$address = $_POST['address'];
  	$giaohang = $_POST['giaohang'];
  
- 	$sql_khachhang = mysqli_query($con,"INSERT INTO tbl_khachhang(name,phone,email,address,note,giaohang,password) values ('$name','$phone','$email','$address','$note','$giaohang','$password')");
+	 $sql1="INSERT INTO tbl_khachhang(khachhang_id,name,phone,email,address,note,giaohang,password) values (sequenkhachhang.nextval,'$name','$phone','$email','$address','$note','$giaohang','$password')";
+ 	$sql_khachhang = oci_parse($con,$sql1);
+	 
+	 oci_execute($sql_khachhang);
+	//  echo $sql1;
  	if($sql_khachhang){
- 		$sql_select_khachhang = mysqli_query($con,"SELECT * FROM tbl_khachhang ORDER BY khachhang_id DESC LIMIT 1");
+		 $sql2="SELECT * FROM (SELECT * FROM tbl_khachhang ORDER BY khachhang_id DESC) WHERE rownum <= 1";
+ 		$sql_select_khachhang = oci_parse($con,$sql2);
+		 oci_execute($sql_select_khachhang);
+		//  echo $sql2;
  		$mahang = rand(0,9999);
- 		$row_khachhang = mysqli_fetch_array($sql_select_khachhang);
- 		$khachhang_id = $row_khachhang['khachhang_id'];
- 		$_SESSION['dangnhap_home'] = $row_khachhang['name'];
+ 		$row_khachhang = oci_fetch_array($sql_select_khachhang);
+ 		$khachhang_id = $row_khachhang['KHACHHANG_ID'];
+ 		$_SESSION['dangnhap_home'] = $row_khachhang['NAME'];
  		$_SESSION['khachhang_id'] = $khachhang_id;
  		for($i=0;$i<count($_POST['thanhtoan_product_id']);$i++){
 	 		$sanpham_id = $_POST['thanhtoan_product_id'][$i];
 	 		$soluong = $_POST['thanhtoan_soluong'][$i];
-	 		$sql_donhang = mysqli_query($con,"INSERT INTO tbl_donhang(sanpham_id,khachhang_id,soluong,mahang) values ('$sanpham_id','$khachhang_id','$soluong','$mahang')");
-	 		$sql_giaodich = mysqli_query($con,"INSERT INTO tbl_giaodich(sanpham_id,soluong,magiaodich,khachhang_id) values ('$sanpham_id','$soluong','$mahang','$khachhang_id')");
-	 		$sql_delete_thanhtoan = mysqli_query($con,"DELETE FROM tbl_giohang WHERE sanpham_id='$sanpham_id'");
+			 $sql3="INSERT INTO tbl_donhang(donhang_id,sanpham_id,khachhang_id,soluong,mahang,tinhtrang,ngaythang) values (sequendonhang.nextval,'$sanpham_id','$khachhang_id','$soluong','$mahang','0',current_timestamp)";
+	 		$sql_donhang = oci_parse($con,$sql3);
+			 
+			 oci_execute($sql_donhang);
+			//  echo $sql3;
+
+			 $sql4="INSERT INTO tbl_giaodich(giaodich_id,ngaythang,sanpham_id,soluong,magiaodich,khachhang_id) values (sequengiaodich.nextval,current_timestamp,'$sanpham_id','$soluong','$mahang','$khachhang_id')";
+	 		$sql_giaodich = oci_parse($con,$sql4);
+			 oci_execute($sql_giaodich);
+			//  echo $sql4;
+	 		$sql_delete_thanhtoan = oci_parse($con,"DELETE FROM tbl_giohang WHERE sanpham_id='$sanpham_id'");
+			 oci_execute($sql_delete_thanhtoan);
  		}
 
  	}
@@ -77,9 +100,17 @@
  	for($i=0;$i<count($_POST['thanhtoan_product_id']);$i++){
 	 		$sanpham_id = $_POST['thanhtoan_product_id'][$i];
 	 		$soluong = $_POST['thanhtoan_soluong'][$i];
-	 		$sql_donhang = mysqli_query($con,"INSERT INTO tbl_donhang(sanpham_id,khachhang_id,soluong,mahang) values ('$sanpham_id','$khachhang_id','$soluong','$mahang')");
-	 		$sql_giaodich = mysqli_query($con,"INSERT INTO tbl_giaodich(sanpham_id,soluong,magiaodich,khachhang_id) values ('$sanpham_id','$soluong','$mahang','$khachhang_id')");
-	 		$sql_delete_thanhtoan = mysqli_query($con,"DELETE FROM tbl_giohang WHERE sanpham_id='$sanpham_id'");
+            $chung="sequendonhang.nextval";
+			 $sql5="INSERT INTO tbl_donhang(donhang_id,sanpham_id,khachhang_id,soluong,mahang) values ($chung,'$sanpham_id','$khachhang_id','$soluong','$mahang')";
+	 		$sql_donhang = oci_parse($con,$sql5);
+			 oci_execute($sql_donhang);
+  echo $sql5;
+			 $sql6="INSERT INTO tbl_giaodich(giaodich_id,ngaythang,sanpham_id,soluong,magiaodich,khachhang_id) values ($chung,current_timestamp,'$sanpham_id','$soluong','$mahang','$khachhang_id')";
+	 		$sql_giaodich = oci_parse($con,$sql6);
+			 echo $sql6;
+			 oci_execute($sql_giaodich);
+	 		$sql_delete_thanhtoan = oci_parse($con,"DELETE FROM tbl_giohang WHERE sanpham_id='$sanpham_id'");
+			 oci_execute($sql_delete_thanhtoan);
  		}
 
  	
@@ -104,7 +135,8 @@
 			<!-- //tittle heading -->
 			<div class="checkout-right">
 			<?php
-			$sql_lay_giohang = mysqli_query($con,"SELECT * FROM tbl_giohang ORDER BY giohang_id DESC");
+			$sql_lay_giohang = oci_parse($con,"SELECT * FROM tbl_giohang ORDER BY giohang_id DESC");
+			oci_execute($sql_lay_giohang);
 
 			?>
 
@@ -128,9 +160,9 @@
 						<?php
 						$i = 0;
 						$total = 0;
-						while($row_fetch_giohang = mysqli_fetch_array($sql_lay_giohang)){ 
+						while($row_fetch_giohang = oci_fetch_array($sql_lay_giohang)){ 
 
-							$subtotal = $row_fetch_giohang['soluong'] * $row_fetch_giohang['giasanpham'];
+							$subtotal = $row_fetch_giohang['SOLUONG'] * $row_fetch_giohang['GIASANPHAM'];
 							$total+=$subtotal;
 							$i++;
 						?>
@@ -138,20 +170,20 @@
 								<td class="invert"><?php echo $i ?></td>
 								<td class="invert-image">
 									<a href="single.html">
-										<img src="images/<?php echo $row_fetch_giohang['hinhanh'] ?>" alt=" " height="120" class="img-responsive">
+										<img src="images/<?php echo $row_fetch_giohang['HINHANH'] ?>" alt=" " height="120" class="img-responsive">
 									</a>
 								</td>
 								<td class="invert">
-									<input type="hidden" name="product_id[]" value="<?php echo $row_fetch_giohang['sanpham_id'] ?>">
-									<input type="number" min="1" name="soluong[]" value="<?php echo $row_fetch_giohang['soluong'] ?>">
+									<input type="hidden" name="product_id[]" value="<?php echo $row_fetch_giohang['SANPHAM_ID'] ?>">
+									<input type="number" min="1" name="soluong[]" value="<?php echo $row_fetch_giohang['SOLUONG'] ?>">
 								
 									
 								</td>
-								<td class="invert"><?php echo $row_fetch_giohang['tensanpham'] ?></td>
-								<td class="invert"><?php echo number_format($row_fetch_giohang['giasanpham']).'vnđ' ?></td>
+								<td class="invert"><?php echo $row_fetch_giohang['TENSANPHAM'] ?></td>
+								<td class="invert"><?php echo number_format($row_fetch_giohang['GIASANPHAM']).'vnđ' ?></td>
 								<td class="invert"><?php echo number_format($subtotal).'vnđ' ?></td>
 								<td class="invert">
-									<a href="?quanly=giohang&xoa=<?php echo $row_fetch_giohang['giohang_id'] ?>">Xóa</a>
+									<a href="?quanly=giohang&xoa=<?php echo $row_fetch_giohang['GIOHANG_ID'] ?>">Xóa</a>
 								</td>
 							</tr>
 							<?php
@@ -164,15 +196,16 @@
 							<tr>
 								<td colspan="7"><input type="submit" class="btn btn-success" value="Cập nhật giỏ hàng" name="capnhatsoluong">
 								<?php 
-								$sql_giohang_select = mysqli_query($con,"SELECT * FROM tbl_giohang");
-								$count_giohang_select = mysqli_num_rows($sql_giohang_select);
+								$sql_giohang_select = oci_parse($con,"SELECT * FROM tbl_giohang");
+								oci_execute($sql_giohang_select);
+								$count_giohang_select = oci_num_rows($sql_giohang_select);
 
 								if(isset($_SESSION['dangnhap_home']) && $count_giohang_select>0){
-									while($row_1 = mysqli_fetch_array($sql_giohang_select)){
+									while($row_1 = oci_fetch_array($sql_giohang_select)){
 								?>
 								
-								<input type="hidden" name="thanhtoan_product_id[]" value="<?php echo $row_1['sanpham_id'] ?>">
-								<input type="hidden" name="thanhtoan_soluong[]" value="<?php echo $row_1['soluong'] ?>">
+								<input type="hidden" name="thanhtoan_product_id[]" value="<?php echo $row_1['SANPHAM_ID'] ?>">
+								<input type="hidden" name="thanhtoan_soluong[]" value="<?php echo $row_1['SOLUONG'] ?>">
 								<?php 
 							}
 								?>
@@ -235,11 +268,12 @@
 									</div>
 								</div>
 								<?php
-								$sql_lay_giohang = mysqli_query($con,"SELECT * FROM tbl_giohang ORDER BY giohang_id DESC");
-								while($row_thanhtoan = mysqli_fetch_array($sql_lay_giohang)){ 
+								$sql_lay_giohang = oci_parse($con,"SELECT * FROM tbl_giohang ORDER BY giohang_id DESC");
+								oci_execute($sql_lay_giohang);
+								while($row_thanhtoan = oci_fetch_array($sql_lay_giohang)){ 
 								?>
-									<input type="hidden" name="thanhtoan_product_id[]" value="<?php echo $row_thanhtoan['sanpham_id'] ?>">
-									<input type="hidden" name="thanhtoan_soluong[]" value="<?php echo $row_thanhtoan['soluong'] ?>">
+									<input type="hidden" name="thanhtoan_product_id[]" value="<?php echo $row_thanhtoan['SANPHAM_ID'] ?>">
+									<input type="hidden" name="thanhtoan_soluong[]" value="<?php echo $row_thanhtoan['SOLUONG'] ?>">
 								<?php
 								} 
 								?>

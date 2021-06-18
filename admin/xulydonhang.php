@@ -5,15 +5,18 @@
 if(isset($_POST['capnhatdonhang'])){
 	$xuly = $_POST['xuly'];
 	$mahang = $_POST['mahang_xuly'];
-	$sql_update_donhang = mysqli_query($con,"UPDATE tbl_donhang SET tinhtrang='$xuly' WHERE mahang='$mahang'");
-	$sql_update_giaodich = mysqli_query($con,"UPDATE tbl_giaodich SET tinhtrangdon='$xuly' WHERE magiaodich='$mahang'");
+	$sql_update_donhang = oci_parse($con,"UPDATE tbl_donhang SET tinhtrang='$xuly' WHERE mahang='$mahang'");
+	oci_execute($sql_update_donhang);
+	$sql_update_giaodich = oci_parse($con,"UPDATE tbl_giaodich SET tinhtrangdon='$xuly' WHERE magiaodich='$mahang'");
+	oci_execute($sql_update_giaodich);
 }
 
 ?>
 <?php
 	if(isset($_GET['xoadonhang'])){
 		$mahang = $_GET['xoadonhang'];
-		$sql_delete = mysqli_query($con,"DELETE FROM tbl_donhang WHERE mahang='$mahang'");
+		$sql_delete = oci_parse($con,"DELETE FROM tbl_donhang WHERE mahang='$mahang'");
+		oci_execute($sql_delete);
 		header('Location:xulydonhang.php');
 	} 
 	if(isset($_GET['xacnhanhuy'])&& isset($_GET['mahang'])){
@@ -23,8 +26,10 @@ if(isset($_POST['capnhatdonhang'])){
 		$huydon = '';
 		$magiaodich = '';
 	}
-	$sql_update_donhang = mysqli_query($con,"UPDATE tbl_donhang SET huydon='$huydon' WHERE mahang='$magiaodich'");
-	$sql_update_giaodich = mysqli_query($con,"UPDATE tbl_giaodich SET huydon='$huydon' WHERE magiaodich='$magiaodich'");
+	$sql_update_donhang = oci_parse($con,"UPDATE tbl_donhang SET huydon='$huydon' WHERE mahang='$magiaodich'");
+	oci_execute($sql_update_donhang);
+	$sql_update_giaodich = oci_parse($con,"UPDATE tbl_giaodich SET huydon='$huydon' WHERE magiaodich='$magiaodich'");
+	oci_execute($sql_update_giaodich);
 
 ?>
 <!DOCTYPE html>
@@ -65,7 +70,8 @@ if(isset($_POST['capnhatdonhang'])){
 			 <?php
 			if(isset($_GET['quanly'])=='xemdonhang'){
 				$mahang = $_GET['mahang'];
-				$sql_chitiet = mysqli_query($con,"SELECT * FROM tbl_donhang,tbl_sanpham WHERE tbl_donhang.sanpham_id=tbl_sanpham.sanpham_id AND tbl_donhang.mahang='$mahang'");
+				$sql_chitiet = oci_parse($con,"SELECT * FROM tbl_donhang,tbl_sanpham WHERE tbl_donhang.sanpham_id=tbl_sanpham.sanpham_id AND tbl_donhang.mahang='$mahang'");
+				oci_execute($sql_chitiet);
 				?>
 				<div class="col-md-7">
 				<p>Xem chi tiết đơn hàng</p>
@@ -85,22 +91,22 @@ if(isset($_POST['capnhatdonhang'])){
 					</tr>
 					<?php
 					$i = 0;
-					while($row_donhang = mysqli_fetch_array($sql_chitiet)){ 
+					while($row_donhang = oci_fetch_array($sql_chitiet)){ 
 						$i++;
 					?> 
 					<tr>
 						<td><?php echo $i; ?></td>
-						<td><?php echo $row_donhang['mahang']; ?></td>
+						<td><?php echo $row_donhang['MAHANG']; ?></td>
 						
-						<td><?php echo $row_donhang['sanpham_name']; ?></td>
-						<td><?php echo $row_donhang['soluong']; ?></td>
-						<td><?php echo $row_donhang['sanpham_giakhuyenmai']; ?></td>
-						<td><?php echo number_format($row_donhang['soluong']*$row_donhang['sanpham_giakhuyenmai']).'vnđ'; ?></td>
+						<td><?php echo $row_donhang['SANPHAM_NAME']; ?></td>
+						<td><?php echo $row_donhang['SOLUONG']; ?></td>
+						<td><?php echo $row_donhang['SANPHAM_GIAKHUYENMAI']; ?></td>
+						<td><?php echo number_format($row_donhang['SOLUONG']*$row_donhang['SANPHAM_GIAKHUYENMAI']).'vnđ'; ?></td>
 						
-						<td><?php echo $row_donhang['ngaythang'] ?></td>
-						<input type="hidden" name="mahang_xuly" value="<?php echo $row_donhang['mahang'] ?>">
+						<td><?php echo $row_donhang['NGAYTHANG'] ?></td>
+						<input type="hidden" name="mahang_xuly" value="<?php echo $row_donhang['MAHANG'] ?>">
 
-						<!-- <td><a href="?xoa=<?php echo $row_donhang['donhang_id'] ?>">Xóa</a> || <a href="?quanly=xemdonhang&mahang=<?php echo $row_donhang['mahang'] ?>">Xem đơn hàng</a></td> -->
+						<td><a href="?xoa=<?php echo $row_donhang['DONHANG_ID'] ?>">Xóa</a> || <a href="?quanly=xemdonhang&mahang=<?php echo $row_donhang['mahang'] ?>">Xem đơn hàng</a></td>
 					</tr>
 					 <?php
 					} 
@@ -129,7 +135,10 @@ if(isset($_POST['capnhatdonhang'])){
 			<div class="col-md-5">
 				<h4>Liệt kê đơn hàng</h4>
 				<?php
-				$sql_select = mysqli_query($con,"SELECT * FROM tbl_sanpham,tbl_khachhang,tbl_donhang WHERE tbl_donhang.sanpham_id=tbl_sanpham.sanpham_id AND tbl_donhang.khachhang_id=tbl_khachhang.khachhang_id GROUP BY mahang "); 
+				$sql_lk="SELECT * FROM tbl_sanpham,tbl_khachhang,tbl_donhang WHERE tbl_donhang.sanpham_id=tbl_sanpham.sanpham_id AND tbl_donhang.khachhang_id=tbl_khachhang.khachhang_id";
+				$sql_select = oci_parse($con,$sql_lk); 
+				echo $sql_lk;
+				oci_execute($sql_select);
 				?> 
 				<table class="table table-bordered ">
 					<tr>
@@ -144,32 +153,32 @@ if(isset($_POST['capnhatdonhang'])){
 					</tr>
 					<?php
 					$i = 0;
-					while($row_donhang = mysqli_fetch_array($sql_select)){ 
+					while($row_donhang = oci_fetch_array($sql_select)){ 
 						$i++;
 					?> 
 					<tr>
 						<td><?php echo $i; ?></td>
 						
-						<td><?php echo $row_donhang['mahang']; ?></td>
+						<td><?php echo $row_donhang['MAHANG']; ?></td>
 						<td><?php
-							if($row_donhang['tinhtrang']==0){
+							if($row_donhang['TINHTRANG']==0){
 								echo 'Chưa xử lý';
 							}else{
 								echo 'Đã xử lý';
 							}
 						?></td>
-						<td><?php echo $row_donhang['name']; ?></td>
+						<td><?php echo $row_donhang['NAME']; ?></td>
 						
-						<td><?php echo $row_donhang['ngaythang'] ?></td>
-						<td><?php echo $row_donhang['note'] ?></td>
-						<td><?php if($row_donhang['huydon']==0){ }elseif($row_donhang['huydon']==1){
-							echo '<a href="xulydonhang.php?quanly=xemdonhang&mahang='.$row_donhang['mahang'].'&xacnhanhuy=2">Xác nhận hủy đơn</a>';
+						<td><?php echo $row_donhang['NGAYTHANG'] ?></td>
+						<td><?php echo $row_donhang['NOTE'] ?></td>
+						<td><?php if($row_donhang['HUYDON']==0){ }elseif($row_donhang['HUYDON']==1){
+							echo '<a href="xulydonhang.php?quanly=xemdonhang&mahang='.$row_donhang['MAHANG'].'&xacnhanhuy=2">Xác nhận hủy đơn</a>';
 						}else{
 							echo 'Đã hủy';
 						} 
 						?></td>
 
-						<td><a href="?xoadonhang=<?php echo $row_donhang['mahang'] ?>">Xóa</a> || <a href="?quanly=xemdonhang&mahang=<?php echo $row_donhang['mahang'] ?>">Xem </a></td>
+						<td><a href="?xoadonhang=<?php echo $row_donhang['MAHANG'] ?>">Xóa</a> || <a href="?quanly=xemdonhang&mahang=<?php echo $row_donhang['MAHANG'] ?>">Xem </a></td>
 					</tr>
 					 <?php
 					} 

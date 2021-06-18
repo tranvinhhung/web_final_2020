@@ -7,12 +7,14 @@
 		if($taikhoan=='' || $matkhau ==''){
 			echo '<script>alert("Làm ơn không để trống")</script>';
 		}else{
-			$sql_select_admin = mysqli_query($con,"SELECT * FROM tbl_khachhang WHERE email='$taikhoan' AND password='$matkhau' LIMIT 1");
-			$count = mysqli_num_rows($sql_select_admin);
-			$row_dangnhap = mysqli_fetch_array($sql_select_admin);
+			$sql_select_admin = oci_parse($con,"SELECT * FROM tbl_khachhang WHERE email='$taikhoan' AND password='$matkhau' ");
+			// echo $sql_select_admin;
+			oci_execute($sql_select_admin);
+			$count = oci_num_rows($sql_select_admin);
+			$row_dangnhap = oci_fetch_array($sql_select_admin);
 			if($count>0){
-				$_SESSION['dangnhap_home'] = $row_dangnhap['name'];
-				$_SESSION['khachhang_id'] = $row_dangnhap['khachhang_id'];
+				$_SESSION['dangnhap_home'] = $row_dangnhap['NAME'];
+				$_SESSION['khachhang_id'] = $row_dangnhap['KHACHHANG_ID'];
 				
 				header('Location: index.php?quanly=giohang');
 			}else{
@@ -28,11 +30,13 @@
 	 	$address = $_POST['address'];
 	 	$giaohang = $_POST['giaohang'];
  
- 		$sql_khachhang = mysqli_query($con,"INSERT INTO tbl_khachhang(name,phone,email,address,note,giaohang,password) values ('$name','$phone','$email','$address','$note','$giaohang','$password')");
- 		$sql_select_khachhang = mysqli_query($con,"SELECT * FROM tbl_khachhang ORDER BY khachhang_id DESC LIMIT 1");
- 		$row_khachhang = mysqli_fetch_array($sql_select_khachhang);
+ 		$sql_khachhang = oci_parse($con,"INSERT INTO tbl_khachhang(khachhang_id,name,phone,email,address,note,giaohang,password) values (sequenkhachhang.nextval,'$name','$phone','$email','$address','$note','$giaohang','$password')");
+ 		oci_execute($sql_khachhang);
+		 $sql_select_khachhang = oci_parse($con,"SELECT * FROM tbl_khachhang ORDER BY khachhang_id DESC LIMIT 1");
+		 oci_execute($sql_select_khachhang);
+ 		$row_khachhang = oci_fetch_array($sql_select_khachhang);
  		$_SESSION['dangnhap_home'] = $name;
-		$_SESSION['khachhang_id'] = $row_khachhang['khachhang_id'];
+		$_SESSION['khachhang_id'] = $row_khachhang['KHACHHANG_ID'];
 		
  		header('Location:index.php?quanly=giohang');
 	}
@@ -193,7 +197,7 @@
 						<!-- cart details -->
 						<div class="col-2 top_nav_right text-center mt-sm-0 mt-2">
 							<div class="wthreecartaits wthreecartaits2 cart cart box_1">
-								<form action="#" method="post" class="last">
+								<form action="index.php?quanly=giohang" method="post" class="last">
 									<input type="hidden" name="cmd" value="_cart">
 									<input type="hidden" name="display" value="1">
 									<button class="btn w3view-cart" type="submit" name="submit" value="">

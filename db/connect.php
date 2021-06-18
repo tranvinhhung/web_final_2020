@@ -1,5 +1,5 @@
 <?php
-$con = mysqli_connect("localhost","root","","webbanquanao");
+/*$con = mysqli_connect("localhost","root","","webbanquanao");
 
 // Check connection
 if (mysqli_connect_errno())
@@ -8,6 +8,17 @@ if (mysqli_connect_errno())
   }
 	  // Change character set to utf8
 	mysqli_set_charset($con,"utf8");
+  */
+
+//myconnect
+$con=oci_connect('hung','hunghung123','localhost/xe','UTF8');
+//check
+if(!$con){
+  echo"failer to connect oracle".oci_error($con);
+}
+// else echo"connect scussed";
+
+
 
 	
-?>
+// ?> 
